@@ -1,5 +1,6 @@
 'use client'
 import { alunoService } from '@/services/aluno-service'
+import { useRouter } from 'next/navigation'
 import { Button } from 'primereact/button'
 import { Calendar } from 'primereact/calendar'
 import { InputText } from 'primereact/inputtext'
@@ -14,6 +15,39 @@ export default function CadastrarAluno() {
     const [email, setEmail] = useState('')
     const [carregando, setCarregando] = useState(false)
     const notificacao = useRef<Toast>(null)
+    const router = useRouter()
+
+    async function salvarAluno(evento: FormEvent<HTMLFormElement>) {
+        evento.preventDefault()
+        setCarregando(true)
+        try {
+            const resposta = await alunoService.criar({
+                matricula,
+                nome,
+                nascimento,
+                email
+            })
+            notificacao.current?.show({
+                summary: 'Aluno cadastrado com sucesso!',
+                severity: 'success',
+                detail: 'O aluno foi salvo na base de dados.'
+            })
+            setMatricula('')
+            setNome('')
+            setNascimento(null)
+            setEmail('')
+
+            router.push('/alunos')
+        } catch (erro) {
+            notificacao.current?.show({
+                summary: 'Erro ao cadastrar o aluno.',
+                severity: 'error',
+                detail: String(erro)
+            })
+        } finally {
+            setCarregando(false)
+        }
+    }
 
     async function salvarAluno(evento: FormEvent<HTMLFormElement>) {
         evento.preventDefault()
@@ -42,7 +76,7 @@ export default function CadastrarAluno() {
         <div>
             <Toast ref={notificacao} />
             <h3>Cadastrar novo aluno</h3>
-            <form onSubmit={salvarAluno}className="flex flex-column gap-2">
+            <form onSubmit={salvarAluno} className="flex flex-column gap-2">
                 <div className="flex flex-column gap-1">
                     <label htmlFor="matricula" className="font-semibold">
                         Matricula

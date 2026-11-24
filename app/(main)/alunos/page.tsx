@@ -15,7 +15,6 @@ export default function Alunos() {
     const buscarAlunos = useCallback(async () => {
         setCarregando(true)
         try {
-
             const alunosApi = await alunoService.listar()
             setAlunos(alunosApi)
         } catch {
